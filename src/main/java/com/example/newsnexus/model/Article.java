@@ -1,5 +1,6 @@
 package com.example.newsnexus.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,10 +16,14 @@ public class Article {
     private Long id;
     private String title;
     private String author;
-    private String url;
-    private String imageUrl;
     private String publishDate;
     private String city;
+
+    @Column(length = 1000)
+    private String imageUrl;
+
+    @Column(length = 1000)
+    private String url;
 
     @ElementCollection
     private List<String> tags;

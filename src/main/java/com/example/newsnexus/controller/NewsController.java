@@ -27,21 +27,29 @@ public class NewsController {
 
         List<Article> articles = articleRepository.findAll();
 
-        if (city != null && !city.equalsIgnoreCase("null")) {
-            articles = articles.stream()
-                    .filter(article -> city.equalsIgnoreCase(article.getCity()))
-                    .collect(Collectors.toList());
+        if (city != null) {
+            if (city.equalsIgnoreCase("null")) {
+                articles = articles.stream()
+                        .filter(article -> article.getCity() == null)
+                        .collect(Collectors.toList());
+            } else {
+                articles = articles.stream()
+                        .filter(article -> city.equalsIgnoreCase(article.getCity()))
+                        .collect(Collectors.toList());
+            }
         }
 
         if (tag != null) {
             articles = articles.stream()
                     .filter(article -> article.getTags() != null &&
-                            article.getTags().stream().anyMatch(t -> t.equalsIgnoreCase(tag)))
+                            article.getTags().stream().anyMatch(t -> t.toLowerCase().contains(tag.toLowerCase())))
                     .collect(Collectors.toList());
         }
 
+
         return articles;
     }
+
 
     @GetMapping("/cities")
     public List<String> getCities() {

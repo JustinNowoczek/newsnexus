@@ -16,6 +16,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,15 @@ public class ArticleService {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @Value("${news.api.key}")
+    private String TEXT_NEWS_API_KEY;
+
+    @Value("${gnews.api.key}")
+    private String TEXT_GNEWS_API_KEY;
+
+    @Value("${currents.api.key}")
+    private String TEXT_CURRENTS_API_KEY;
 
     @Value("${textrazor.api.key}")
     private String TEXT_RAZOR_API_KEY;
@@ -36,10 +48,6 @@ public class ArticleService {
 
     @Value("${currents.api.url}")
     private String CURRENTS_API_URL;
-
-//    public ArticleService() {
-//        fetchNews();
-//    }
 
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
@@ -59,19 +67,40 @@ public class ArticleService {
 
             Article article = new Article();
             article.setTitle(articleJson.getString("title"));
+
+            if (articleRepository.findByTitle(article.getTitle()).isPresent()) {
+                continue;
+            }
+
             article.setAuthor(articleJson.optString(authorKey, null));
             article.setUrl(articleJson.optString("url", null));
             article.setImageUrl(articleJson.optString(imageUrlKey, null));
-            article.setPublishDate(articleJson.optString(publishDateKey, null));
 
-//            String cityAndTags = extractCityAndTags(article.getTitle());
-//            if (cityAndTags != null) {
-//                String[] parts = cityAndTags.split(";");
-//                article.setCity(parts[0].equals("null") ? null : parts[0]);
-//                article.setTags(parts.length > 1 ? List.of(parts[1].split(",")) : new ArrayList<>());
-//            }
+            String publishDateString = articleJson.optString(publishDateKey, null);
+            if (publishDateString != null) {
+                LocalDateTime publishDate = parsePublishDate(publishDateString);
+                article.setPublishDate(publishDate.toString());
+            }
+
+            String cityAndTags = extractCityAndTags(article.getTitle());
+            if (cityAndTags != null) {
+                String[] parts = cityAndTags.split(";");
+                article.setCity(parts[0].equals("null") ? null : parts[0]);
+                article.setTags(parts.length > 1 ? List.of(parts[1].split(",")) : new ArrayList<>());
+            }
 
             articleRepository.save(article);
+        }
+    }
+
+    private LocalDateTime parsePublishDate(String publishDateString) {
+        DateTimeFormatter formatterZ = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        DateTimeFormatter formatterWithOffset = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+
+        if (publishDateString.endsWith("Z")) {
+            return LocalDateTime.parse(publishDateString, formatterZ);
+        } else {
+            return LocalDateTime.parse(publishDateString, formatterWithOffset);
         }
     }
 
@@ -85,27 +114,34 @@ public class ArticleService {
             String city = null;
             List<String> tags = new ArrayList<>();
 
-            for (Entity entity : analyzedText.getResponse().getEntities()) {
-                List<String> freebaseTypes = entity.getFreebaseTypes();
-                if (freebaseTypes != null && freebaseTypes.contains("/location/citytown")) {
-                    city = entity.getEntityId();
-                    break;
+            if (analyzedText.getResponse() != null) {
+                if (analyzedText.getResponse().getEntities() != null) {
+                    for (Entity entity : analyzedText.getResponse().getEntities()) {
+                        List<String> freebaseTypes = entity.getFreebaseTypes();
+                        if (freebaseTypes != null && freebaseTypes.contains("/location/citytown")) {
+                            city = entity.getEntityId();
+                            break;
+                        }
+                    }
                 }
-            }
 
-            for (Topic topic : analyzedText.getResponse().getTopics()) {
-                tags.add(topic.getLabel());
-                if (tags.size() >= 10) {
-                    break;
+                if (analyzedText.getResponse().getTopics() != null) {
+                    for (Topic topic : analyzedText.getResponse().getTopics()) {
+                        tags.add(topic.getLabel());
+                        if (tags.size() >= 10) {
+                            break;
+                        }
+                    }
                 }
             }
 
             return (city != null ? city : "null") + ";" + String.join(",", tags);
-
         } catch (AnalysisException | NetworkException e) {
             e.printStackTrace();
             return null;
         }
     }
+
+
 
 }
