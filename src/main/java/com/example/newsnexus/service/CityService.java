@@ -1,0 +1,48 @@
+package com.example.newsnexus.service;
+
+import com.example.newsnexus.model.City;
+import com.example.newsnexus.repository.CityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+
+
+@Service
+public class CityService {
+
+    @Autowired
+    private CityRepository cityRepository;
+
+    public void importCitiesFromCsv(String filePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            boolean isFirstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                String[] data = line.split(",");
+
+                if (data.length < 2) {
+                    System.err.println("Skipping invalid line: " + line);
+                    continue;
+                }
+
+                City city = new City();
+                city.setName(data[0].trim());
+                city.setState(data[1].trim());
+                cityRepository.save(city);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+}
