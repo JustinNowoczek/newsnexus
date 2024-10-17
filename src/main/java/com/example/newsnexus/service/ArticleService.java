@@ -16,6 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -28,18 +30,6 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    @Value("${news.api.key}")
-    private String TEXT_NEWS_API_KEY;
-
-    @Value("${gnews.api.key}")
-    private String TEXT_GNEWS_API_KEY;
-
-    @Value("${currents.api.key}")
-    private String TEXT_CURRENTS_API_KEY;
-
-    @Value("${textrazor.api.key}")
-    private String TEXT_RAZOR_API_KEY;
-
     @Value("${news.api.url}")
     private String NEWS_API_URL;
 
@@ -51,9 +41,9 @@ public class ArticleService {
 
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
-        fetchAndSaveArticles(NEWS_API_URL, "urlToImage", "publishedAt", "author", "articles");
-        fetchAndSaveArticles(GNEWS_API_URL, "image", "publishedAt", "source.name", "articles");
-        fetchAndSaveArticles(CURRENTS_API_URL, "image", "published", "author", "news");
+        fetchAndSaveArticles(NEWS_API_URL +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
+        fetchAndSaveArticles(GNEWS_API_URL +  Dotenv.load().get("GNEWS_API_KEY"), "image", "publishedAt", "source.name", "articles");
+        fetchAndSaveArticles(CURRENTS_API_URL +  Dotenv.load().get("CURRENTS_API_KEY"), "image", "published", "author", "news");
     }
 
     private void fetchAndSaveArticles(String apiUrl, String imageUrlKey, String publishDateKey, String authorKey, String articlesKey) {
@@ -89,6 +79,8 @@ public class ArticleService {
                 article.setTags(parts.length > 1 ? List.of(parts[1].split(",")) : new ArrayList<>());
             }
 
+            System.out.println(apiUrl);
+
             articleRepository.save(article);
         }
     }
@@ -105,7 +97,7 @@ public class ArticleService {
     }
 
     private String extractCityAndTags(String title) {
-        TextRazor client = new TextRazor(TEXT_RAZOR_API_KEY);
+        TextRazor client = new TextRazor(Dotenv.load().get("TEXTRAZOR_API_KEY"));
         client.addExtractor("entities");
         client.addExtractor("topics");
 
@@ -137,7 +129,6 @@ public class ArticleService {
 
             return (city != null ? city : "null") + ";" + String.join(",", tags);
         } catch (AnalysisException | NetworkException e) {
-            e.printStackTrace();
             return null;
         }
     }
