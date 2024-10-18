@@ -53,10 +53,7 @@ public class NewsController {
 
 
     @GetMapping("/cities")
-    public List<String> getCities() {
-        return cityRepository.findAll()
-                .stream()
-                .map(City::getName)
-                .collect(Collectors.toList());
+    public List<City> getCities() {
+        return cityRepository.findAll();
     }
 }
