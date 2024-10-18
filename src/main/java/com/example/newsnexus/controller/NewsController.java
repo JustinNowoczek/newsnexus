@@ -37,7 +37,7 @@ public class NewsController {
         }
 
         if (city != null) {
-            if (city.equalsIgnoreCase("null")) {
+            if (city.equalsIgnoreCase("noCity")) {
                 return articleRepository.findByCityIgnoreCaseContaining(null);
             } else {
                 return articleRepository.findByCityIgnoreCaseContaining(city);
