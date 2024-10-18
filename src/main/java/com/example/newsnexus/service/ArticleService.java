@@ -41,8 +41,8 @@ public class ArticleService {
 
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
-        fetchAndSaveArticles(NEWS_API_URL +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
         fetchAndSaveArticles(GNEWS_API_URL +  Dotenv.load().get("GNEWS_API_KEY"), "image", "publishedAt", "source.name", "articles");
+        fetchAndSaveArticles(NEWS_API_URL +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
         fetchAndSaveArticles(CURRENTS_API_URL +  Dotenv.load().get("CURRENTS_API_KEY"), "image", "published", "author", "news");
     }
 
