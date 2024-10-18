@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-
-
 
 @Service
 public class CityService {
@@ -17,8 +14,8 @@ public class CityService {
     @Autowired
     private CityRepository cityRepository;
 
-    public void importCitiesFromCsv(String filePath) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+    public void importCitiesFromCsv(BufferedReader br) {
+        try {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
@@ -42,7 +39,5 @@ public class CityService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 }
