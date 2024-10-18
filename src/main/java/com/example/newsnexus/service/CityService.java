@@ -32,8 +32,8 @@ public class CityService {
                 }
 
                 City city = new City();
-                city.setName(data[0].trim());
-                city.setState(data[1].trim());
+                city.setName(data[0].substring(1, data[0].length() - 1).trim());
+                city.setState(data[1].substring(1, data[1].length() - 1).trim());
                 cityRepository.save(city);
             }
         } catch (IOException e) {
