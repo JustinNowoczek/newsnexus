@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:5173", "https://newsnexus-front.onrender.com"})
@@ -38,7 +36,7 @@ public class NewsController {
 
         if (city != null) {
             if (city.equalsIgnoreCase("noCity")) {
-                return articleRepository.findByCityIgnoreCaseContaining(null);
+                return articleRepository.findByCityIsNull();
             } else {
                 return articleRepository.findByCityIgnoreCaseContaining(city);
             }
