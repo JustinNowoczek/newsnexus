@@ -6,6 +6,8 @@ import com.example.newsnexus.repository.ArticleRepository;
 import com.example.newsnexus.repository.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,29 +28,27 @@ public class NewsController {
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String tag) {
 
-        List<Article> articles = articleRepository.findAll();
+        if (city == null && tag == null) {
+            return articleRepository.findAll();
+        }
+
+        if (city != null && tag != null) {
+            return articleRepository.findByCityAndTag(city, tag);
+        }
 
         if (city != null) {
             if (city.equalsIgnoreCase("null")) {
-                articles = articles.stream()
-                        .filter(article -> article.getCity() == null)
-                        .collect(Collectors.toList());
+                return articleRepository.findByCityIgnoreCaseContaining(null);
             } else {
-                articles = articles.stream()
-                        .filter(article -> article.getCity().toLowerCase().contains(city.toLowerCase()))
-                        .collect(Collectors.toList());
+                return articleRepository.findByCityIgnoreCaseContaining(city);
             }
         }
 
         if (tag != null) {
-            articles = articles.stream()
-                    .filter(article -> article.getTags() != null &&
-                            article.getTags().stream().anyMatch(t -> t.toLowerCase().contains(tag.toLowerCase())))
-                    .collect(Collectors.toList());
+            return articleRepository.findByTagContainingIgnoreCase(tag);
         }
 
-
-        return articles;
+        return new ArrayList<>();
     }
 
 
