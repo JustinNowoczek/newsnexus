@@ -9,11 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
-
-    List<Article> findByCity(String city);
-
-    List<Article> findByCityIsNull();
-
     Optional<Article> findByTitle(String title);
 
     List<Article> findByCityIgnoreCaseContaining(String city);
