@@ -35,7 +35,7 @@ public class NewsController {
                         .collect(Collectors.toList());
             } else {
                 articles = articles.stream()
-                        .filter(article -> city.equalsIgnoreCase(article.getCity()))
+                        .filter(article -> article.getCity().toLowerCase().contains(city.toLowerCase()))
                         .collect(Collectors.toList());
             }
         }
