@@ -16,6 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import org.springframework.core.env.Environment;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.time.LocalDateTime;
@@ -39,11 +41,18 @@ public class ArticleService {
     @Value("${currents.api.url}")
     private String currentsApiUrl;
 
+    @Autowired
+    private Environment env;
+
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
-        fetchAndSaveArticles(gnewsApiUrl +  Dotenv.load().get("GNEWS_API_KEY"), "image", "publishedAt", "source.name", "articles");
-        fetchAndSaveArticles(newsApiUrl +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
-        fetchAndSaveArticles(currentsApiUrl +  Dotenv.load().get("CURRENTS_API_KEY"), "image", "published", "author", "news");
+        String gnewsApiKey = env.getProperty("GNEWS_API_KEY");
+        String newsApiKey = env.getProperty("NEWS_API_KEY");
+        String currentsApiKey = env.getProperty("CURRENTS_API_KEY");
+
+        fetchAndSaveArticles(gnewsApiUrl +  gnewsApiKey, "image", "publishedAt", "source.name", "articles");
+        fetchAndSaveArticles(newsApiUrl +  newsApiKey, "urlToImage", "publishedAt", "author", "articles");
+        fetchAndSaveArticles(currentsApiUrl +  currentsApiKey, "image", "published", "author", "news");
     }
 
     private void fetchAndSaveArticles(String apiUrl, String imageUrlKey, String publishDateKey, String authorKey, String articlesKey) {
@@ -97,7 +106,8 @@ public class ArticleService {
     }
 
     private String extractCityAndTags(String title) {
-        TextRazor client = new TextRazor(Dotenv.load().get("TEXTRAZOR_API_KEY"));
+        String textrazorApiKey = env.getProperty("TEXTRAZOR_API_KEY");
+        TextRazor client = new TextRazor(textrazorApiKey);
         client.addExtractor("entities");
         client.addExtractor("topics");
 

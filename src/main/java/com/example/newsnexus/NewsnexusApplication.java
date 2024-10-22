@@ -10,8 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class NewsnexusApplication {
 
 	public static void main(String[] args) {
-
-
 		SpringApplication.run(NewsnexusApplication.class, args);
 	}
 }
