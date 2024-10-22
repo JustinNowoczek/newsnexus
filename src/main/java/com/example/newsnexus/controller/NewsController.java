@@ -6,7 +6,6 @@ import com.example.newsnexus.repository.ArticleRepository;
 import com.example.newsnexus.repository.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
 
 import java.util.List;
 
@@ -42,13 +41,8 @@ public class NewsController {
             }
         }
 
-        if (tag != null) {
-            return articleRepository.findByTagContainingIgnoreCase(tag);
-        }
-
-        return new ArrayList<>();
+        return articleRepository.findByTagContainingIgnoreCase(tag);
     }
-
 
     @GetMapping("/cities")
     public List<City> getCities() {

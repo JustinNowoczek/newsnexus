@@ -31,19 +31,19 @@ public class ArticleService {
     private ArticleRepository articleRepository;
 
     @Value("${news.api.url}")
-    private String NEWS_API_URL;
+    private String newsApiUrl;
 
     @Value("${gnews.api.url}")
-    private String GNEWS_API_URL;
+    private String gnewsApiUrl;
 
     @Value("${currents.api.url}")
-    private String CURRENTS_API_URL;
+    private String currentsApiUrl;
 
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
-        fetchAndSaveArticles(GNEWS_API_URL +  Dotenv.load().get("GNEWS_API_KEY"), "image", "publishedAt", "source.name", "articles");
-        fetchAndSaveArticles(NEWS_API_URL +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
-        fetchAndSaveArticles(CURRENTS_API_URL +  Dotenv.load().get("CURRENTS_API_KEY"), "image", "published", "author", "news");
+        fetchAndSaveArticles(gnewsApiUrl +  Dotenv.load().get("GNEWS_API_KEY"), "image", "publishedAt", "source.name", "articles");
+        fetchAndSaveArticles(newsApiUrl +  Dotenv.load().get("NEWS_API_KEY"), "urlToImage", "publishedAt", "author", "articles");
+        fetchAndSaveArticles(currentsApiUrl +  Dotenv.load().get("CURRENTS_API_KEY"), "image", "published", "author", "news");
     }
 
     private void fetchAndSaveArticles(String apiUrl, String imageUrlKey, String publishDateKey, String authorKey, String articlesKey) {
