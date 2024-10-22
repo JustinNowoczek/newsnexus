@@ -22,7 +22,7 @@ public class AppStartupRunner implements CommandLineRunner {
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-//            cityService.importCitiesFromCsv(reader);
+            cityService.importCitiesFromCsv(reader);
         }
     }
 }
