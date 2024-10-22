@@ -18,8 +18,6 @@ import org.springframework.web.client.RestTemplate;
 
 import org.springframework.core.env.Environment;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -41,18 +39,17 @@ public class ArticleService {
     @Value("${currents.api.url}")
     private String currentsApiUrl;
 
+    @Value("${textrazor.api.key}")
+    private String textrazorApiKey;
+
     @Autowired
     private Environment env;
 
     @Scheduled(fixedRateString = "${news.fetch.interval}")
     public void fetchNews() {
-        String gnewsApiKey = env.getProperty("GNEWS_API_KEY");
-        String newsApiKey = env.getProperty("NEWS_API_KEY");
-        String currentsApiKey = env.getProperty("CURRENTS_API_KEY");
-
-        fetchAndSaveArticles(gnewsApiUrl +  gnewsApiKey, "image", "publishedAt", "source.name", "articles");
-        fetchAndSaveArticles(newsApiUrl +  newsApiKey, "urlToImage", "publishedAt", "author", "articles");
-        fetchAndSaveArticles(currentsApiUrl +  currentsApiKey, "image", "published", "author", "news");
+        fetchAndSaveArticles(gnewsApiUrl, "image", "publishedAt", "source.name", "articles");
+        fetchAndSaveArticles(newsApiUrl, "urlToImage", "publishedAt", "author", "articles");
+        fetchAndSaveArticles(currentsApiUrl, "image", "published", "author", "news");
     }
 
     private void fetchAndSaveArticles(String apiUrl, String imageUrlKey, String publishDateKey, String authorKey, String articlesKey) {
@@ -88,8 +85,6 @@ public class ArticleService {
                 article.setTags(parts.length > 1 ? List.of(parts[1].split(",")) : new ArrayList<>());
             }
 
-            System.out.println(apiUrl);
-
             articleRepository.save(article);
         }
     }
@@ -106,7 +101,6 @@ public class ArticleService {
     }
 
     private String extractCityAndTags(String title) {
-        String textrazorApiKey = env.getProperty("TEXTRAZOR_API_KEY");
         TextRazor client = new TextRazor(textrazorApiKey);
         client.addExtractor("entities");
         client.addExtractor("topics");
