@@ -110,23 +110,27 @@ public class ArticleService {
             String city = null;
             List<String> tags = new ArrayList<>();
 
-            if (analyzedText.getResponse() != null) {
-                if (analyzedText.getResponse().getEntities() != null) {
-                    for (Entity entity : analyzedText.getResponse().getEntities()) {
-                        List<String> freebaseTypes = entity.getFreebaseTypes();
-                        if (freebaseTypes != null && freebaseTypes.contains("/location/citytown")) {
-                            city = entity.getEntityId();
-                            break;
-                        }
+            if (analyzedText.getResponse() == null) {
+                return "null;";
+            }
+
+            List<Entity> entities = analyzedText.getResponse().getEntities();
+            if (entities != null) {
+                for (Entity entity : entities) {
+                    List<String> freebaseTypes = entity.getFreebaseTypes();
+                    if (freebaseTypes != null && freebaseTypes.contains("/location/citytown")) {
+                        city = entity.getEntityId();
+                        break;
                     }
                 }
+            }
 
-                if (analyzedText.getResponse().getTopics() != null) {
-                    for (Topic topic : analyzedText.getResponse().getTopics()) {
-                        tags.add(topic.getLabel());
-                        if (tags.size() >= 10) {
-                            break;
-                        }
+            List<Topic> topics = analyzedText.getResponse().getTopics();
+            if (topics != null) {
+                for (Topic topic : topics) {
+                    tags.add(topic.getLabel());
+                    if (tags.size() >= 10) {
+                        break;
                     }
                 }
             }
@@ -136,7 +140,4 @@ public class ArticleService {
             return null;
         }
     }
-
-
-
 }
